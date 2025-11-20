@@ -1,14 +1,14 @@
 import { Link, useLocation } from "react-router";
 import styles from "./BottomNav.module.css";
-import { IoMdCalendar, IoTicket, IoIosSearch } from "react-icons/io";
-import { IoChatboxEllipses, IoIosCog } from "react-icons/io5";
+import { IoSearch, IoCalendar, IoTicket } from "react-icons/io5";
+import { IoChatboxEllipses, IoCog } from "react-icons/io5";
 
 const navItems = [
-  { path: "/canchas", icon: IoIosSearch, label: "Buscar" },
-  { path: "/reservar", icon: IoMdCalendar, label: "Reservar" },
+  { path: "/canchas", icon: IoSearch, label: "Buscar" },
+  { path: "/reservar", icon: IoCalendar, label: "Reservar" },
   { path: "/reservaciones", icon: IoTicket, label: "Mis Reservas" },
   { path: "/comentar", icon: IoChatboxEllipses, label: "Comentar" },
-  { path: "/config", icon: IoIosCog, label: "Ajustes" },
+  { path: "/config", icon: IoCog, label: "Ajustes" },
 ];
 
 export default function BottomNav() {

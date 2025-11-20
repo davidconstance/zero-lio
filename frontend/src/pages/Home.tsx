@@ -11,7 +11,7 @@ import { IoIosHeartEmpty } from "react-icons/io";
 import { IoIosHeart } from "react-icons/io";
 import { IoIosMenu } from "react-icons/io";
 import { IoIosList } from "react-icons/io";
-import { IoIosPin } from "react-icons/io";
+import { IoPin } from "react-icons/io";
 import Menu from "../components/Menu";
 import type { Place } from "../types";
 import { reverseGeocode } from "../api/geocode";
@@ -335,7 +335,7 @@ export default function Home() {
               type="button"
               onClick={() => setIsMapView((prev) => !prev)}
             >
-              {isMapView ? <IoIosList /> : <IoIosPin />}
+              {isMapView ? <IoIosList /> : <IoPin />}
             </button>
           </div>
           {savedView ? (
@@ -432,7 +432,7 @@ function MapView({ results }: { results: Place[] }) {
               <br />
               {place.formattedAddress}
               <br />
-              <IoIosPin /> {(place.distanceMeters / 1000).toFixed(2)} km
+              <IoPin /> {(place.distanceMeters / 1000).toFixed(2)} km
             </Popup>
           </Marker>
         ))}

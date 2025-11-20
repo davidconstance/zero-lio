@@ -12,12 +12,13 @@ import {
 
 // web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDw4x9AxmVxTU6QBqwl34_VFY0azYKULEw",
-  authDomain: "zero-lio.firebaseapp.com",
-  projectId: "zero-lio",
-  storageBucket: "zero-lio.firebasestorage.app",
-  messagingSenderId: "171435442691",
-  appId: "1:171435442691:web:7624d53becbc2a7a314436",
+  apiKey: "AIzaSyAWEp92KogXBS8uebXcZJZTqz2EulwW_p8",
+  authDomain: "zero-lio-422ea.firebaseapp.com",
+  projectId: "zero-lio-422ea",
+  storageBucket: "zero-lio-422ea.firebasestorage.app",
+  messagingSenderId: "271981909282",
+  appId: "1:271981909282:web:0dcc59f4c7b05d638a417b",
+  measurementId: "G-5V8KWJNPVS",
 };
 
 // initialize Firebase

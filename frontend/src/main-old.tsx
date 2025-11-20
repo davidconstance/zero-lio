@@ -2,16 +2,14 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import "./index.css";
-import "react-toastify/dist/ReactToastify.css";
-import Login from "./pages/Login.tsx";
-import Register from "./pages/Register.tsx";
-import ImprovedHome from "./pages/ImprovedHome.tsx";
-import ImprovedReserve from "./pages/ImprovedReserve.tsx";
+import App from "./App.tsx";
+import Home from "./pages/Home.tsx";
+import RequireAuth from "./RequireAuth.tsx";
+import Reserve from "./pages/Reserve.tsx";
 import Reservations from "./pages/Reservations.tsx";
 import Community from "./pages/Community.tsx";
 import Settings from "./pages/Settings.tsx";
-import ImprovedMakeReview from "./pages/ImprovedMakeReview.tsx";
-import RequireAuth from "./RequireAuth.tsx";
+import MakeReview from "./pages/MakeReview.tsx";
 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -27,13 +25,12 @@ L.Icon.Default.mergeOptions({
 
 const router = createBrowserRouter(
   [
-    { path: "/", element: <Login /> },
-    { path: "/register", element: <Register /> },
+    { path: "/", element: <App /> },
     {
       path: "/canchas",
       element: (
         <RequireAuth>
-          <ImprovedHome />
+          <Home />
         </RequireAuth>
       ),
     },
@@ -41,7 +38,7 @@ const router = createBrowserRouter(
       path: "/reservar",
       element: (
         <RequireAuth>
-          <ImprovedReserve />
+          <Reserve />
         </RequireAuth>
       ),
     },
@@ -65,7 +62,7 @@ const router = createBrowserRouter(
       path: "/comentar",
       element: (
         <RequireAuth>
-          <ImprovedMakeReview />
+          <MakeReview />
         </RequireAuth>
       ),
     },

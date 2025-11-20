@@ -138,11 +138,11 @@ export default function MyPage() {
 
 ```tsx
 import EmptyState from "../components/EmptyState";
-import { IoIosPin } from "react-icons/io5";
+import { IoPin } from "react-icons/io5";
 
 {canchas.length === 0 && (
   <EmptyState
-    icon={<IoIosPin />}
+    icon={<IoPin />}
     title="Sin canchas guardadas"
     description="Agrega canchas a favoritos para verlas aquí"
     actionLabel="Buscar Canchas"

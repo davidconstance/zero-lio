@@ -1,6 +1,6 @@
 import type { Comment } from "../types";
 import styles from "./Review.module.css";
-import { IoIosPin, IoIosStar } from "react-icons/io";
+import { IoPin, IoStar } from "react-icons/io5";
 import { IoIosStarOutline } from "react-icons/io";
 
 type Props = {
@@ -24,7 +24,7 @@ export default function Review({ comment }: Props) {
     const starsArr = [];
     for (let i = 0; i < 5; i++) {
       if (i < starsCount) {
-        starsArr.push(<IoIosStar key={i} />);
+        starsArr.push(<IoStar key={i} />);
       } else {
         starsArr.push(<IoIosStarOutline key={i} />);
       }
@@ -41,7 +41,7 @@ export default function Review({ comment }: Props) {
           </p>
           {comment.cancha ? (
             <div className={styles.address}>
-              <IoIosPin />
+              <IoPin />
               <p>{comment.cancha.formattedAddress}</p>
             </div>
           ) : null}

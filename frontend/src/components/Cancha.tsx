@@ -1,4 +1,4 @@
-import { IoIosPin } from "react-icons/io";
+import { IoPin } from "react-icons/io5";
 import styles from "./Cancha.module.css";
 import type { Place } from "../types";
 import { useEffect, useState } from "react";
@@ -58,7 +58,7 @@ export default function Cancha({
         <h3 className={styles.name}>{place.displayName}</h3>
         <p className={styles.address}>{place.formattedAddress}</p>
         <p className={styles.distance}>
-          <IoIosPin /> {(place.distanceMeters / 1000).toFixed(2)} km
+          <IoPin /> {(place.distanceMeters / 1000).toFixed(2)} km
         </p>
       </div>
     </div>

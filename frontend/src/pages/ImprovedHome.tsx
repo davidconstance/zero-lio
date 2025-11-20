@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, useMap, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import styles from "./ImprovedHome.module.css";
-import { IoSearch, IoIosPin, IoFilter } from "react-icons/io5";
+import { IoSearch, IoPin } from "react-icons/io5";
 import { fetchSavedCanchas, saveCanchas } from "../api/firestore";
 import { reverseGeocode } from "../api/geocode";
 import type { Place } from "../types";
@@ -246,7 +246,7 @@ export default function ImprovedHome() {
           <div className={styles.loadingState}>Cargando...</div>
         ) : displayedCanchas.length === 0 ? (
           <EmptyState
-            icon={<IoIosPin />}
+            icon={<IoPin />}
             title={showSavedOnly ? "Sin favoritos" : "Sin resultados"}
             description={
               showSavedOnly
