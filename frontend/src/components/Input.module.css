@@ -1,0 +1,101 @@
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.required {
+  color: #dc3545;
+  font-size: 1rem;
+}
+
+.inputContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem;
+  background-color: white;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.inputContainer:focus-within {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.inputContainer.hasError {
+  border-color: #dc3545;
+}
+
+.inputContainer.hasError:focus-within {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.inputContainer.hasSuccess {
+  border-color: #28a745;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  color: #666;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #333;
+  outline: none;
+  width: 100%;
+}
+
+.input::placeholder {
+  color: #999;
+}
+
+.statusIcon {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.hasError .statusIcon {
+  color: #dc3545;
+}
+
+.hasSuccess .statusIcon {
+  color: #28a745;
+}
+
+.errorText {
+  font-size: 0.875rem;
+  color: #dc3545;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.helpText {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0;
+}
