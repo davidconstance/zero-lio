@@ -6,7 +6,12 @@ import { fetchSavedCanchas, saveReservations } from "../api/firestore";
 import type { Place, Reservation } from "../types";
 import BottomNav from "../components/BottomNav";
 import Button from "../components/Button";
-import { IoCalendarOutline, IoLocationOutline, IoBasketballOutline, IoCheckmarkCircle } from "react-icons/io5";
+import {
+  IoCalendarOutline,
+  IoLocationOutline,
+  IoBasketballOutline,
+  IoCheckmarkCircle,
+} from "react-icons/io5";
 import EmptyState from "../components/EmptyState";
 
 type Step = 1 | 2 | 3;
@@ -19,8 +24,10 @@ export default function ImprovedReserve() {
   const [selectedTime, setSelectedTime] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
   const navigate = useNavigate();
 
+  // --- Cargar canchas guardadas al inicio ---
   useEffect(() => {
     loadSavedCanchas();
   }, []);
@@ -28,25 +35,27 @@ export default function ImprovedReserve() {
   const loadSavedCanchas = async () => {
     try {
       setLoading(true);
-      const canchas = await fetchSavedCanchas();
+      const canchas = await fetchSavedCanchas(); // token JWT incluido
       setSavedCanchas(canchas);
       if (canchas.length === 0) {
         toast.info("Primero guarda algunas canchas favoritas");
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error("Error al cargar canchas");
+        toast.error(`Error al cargar canchas: ${error.message}`);
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // --- Manejar selección de cancha ---
   const handleCanchaSelect = (cancha: Place) => {
     setSelectedCancha(cancha);
     setCurrentStep(2);
   };
 
+  // --- Confirmar fecha y hora ---
   const handleDateTimeConfirm = () => {
     if (!selectedDate || !selectedTime) {
       toast.warning("Selecciona fecha y hora");
@@ -55,7 +64,6 @@ export default function ImprovedReserve() {
 
     const selectedDateTime = new Date(`${selectedDate}T${selectedTime}`);
     const now = new Date();
-
     if (selectedDateTime < now) {
       toast.error("No puedes reservar en el pasado");
       return;
@@ -64,6 +72,7 @@ export default function ImprovedReserve() {
     setCurrentStep(3);
   };
 
+  // --- Confirmar reserva ---
   const handleConfirmReservation = async () => {
     if (!selectedCancha || !selectedDate || !selectedTime) {
       toast.error("Información incompleta");
@@ -78,7 +87,7 @@ export default function ImprovedReserve() {
 
     try {
       setLoading(true);
-      await saveReservations([reservation], []);
+      await saveReservations([reservation], []); // token JWT incluido
       setShowSuccess(true);
       toast.success("Reserva confirmada");
 
@@ -87,21 +96,20 @@ export default function ImprovedReserve() {
       }, 3000);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error("Error al confirmar reserva");
+        toast.error(`Error al confirmar reserva: ${error.message}`);
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // --- Volver atrás ---
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => (prev - 1) as Step);
-    } else {
-      navigate("/canchas");
-    }
+    if (currentStep > 1) setCurrentStep((prev) => (prev - 1) as Step);
+    else navigate("/canchas");
   };
 
+  // --- Generar horarios disponibles ---
   const getAvailableTimeSlots = () => {
     const slots = [];
     for (let hour = 8; hour <= 20; hour++) {
@@ -134,9 +142,7 @@ export default function ImprovedReserve() {
       )}
 
       <header className={styles.header}>
-        <button onClick={handleBack} className={styles.backBtn} aria-label="Volver">
-          ←
-        </button>
+        <button onClick={handleBack} className={styles.backBtn} aria-label="Volver">←</button>
         <h1>Reservar Cancha</h1>
       </header>
 
@@ -158,6 +164,7 @@ export default function ImprovedReserve() {
       </div>
 
       <main className={styles.main}>
+        {/* --- STEP 1: SELECCIONAR CANCHA --- */}
         {currentStep === 1 && (
           <div className={styles.step}>
             <h2>Selecciona una cancha</h2>
@@ -172,20 +179,12 @@ export default function ImprovedReserve() {
             ) : (
               <div className={styles.canchasList}>
                 {savedCanchas.map((cancha) => (
-                  <button
-                    key={cancha.id}
-                    onClick={() => handleCanchaSelect(cancha)}
-                    className={styles.canchaCard}
-                  >
+                  <button key={cancha.id} onClick={() => handleCanchaSelect(cancha)} className={styles.canchaCard}>
                     <IoBasketballOutline className={styles.canchaIcon} />
                     <div className={styles.canchaInfo}>
                       <h3>{cancha.displayName}</h3>
                       <p>{cancha.formattedAddress}</p>
-                      {cancha.sport && (
-                        <span className={styles.sportBadge}>
-                          {cancha.sport.charAt(0).toUpperCase() + cancha.sport.slice(1)}
-                        </span>
-                      )}
+                      {cancha.sport && <span className={styles.sportBadge}>{cancha.sport}</span>}
                     </div>
                   </button>
                 ))}
@@ -194,6 +193,7 @@ export default function ImprovedReserve() {
           </div>
         )}
 
+        {/* --- STEP 2: SELECCIONAR FECHA/HORA --- */}
         {currentStep === 2 && selectedCancha && (
           <div className={styles.step}>
             <h2>Selecciona fecha y hora</h2>
@@ -230,9 +230,7 @@ export default function ImprovedReserve() {
               >
                 <option value="">Selecciona una hora</option>
                 {getAvailableTimeSlots().map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
+                  <option key={slot} value={slot}>{slot}</option>
                 ))}
               </select>
             </div>
@@ -248,6 +246,7 @@ export default function ImprovedReserve() {
           </div>
         )}
 
+        {/* --- STEP 3: CONFIRMAR RESERVA --- */}
         {currentStep === 3 && selectedCancha && (
           <div className={styles.step}>
             <h2>Confirmar reserva</h2>
@@ -284,9 +283,7 @@ export default function ImprovedReserve() {
             </div>
 
             <div className={styles.actions}>
-              <Button onClick={handleBack} variant="secondary" fullWidth>
-                Editar
-              </Button>
+              <Button onClick={handleBack} variant="secondary" fullWidth>Editar</Button>
               <Button
                 onClick={handleConfirmReservation}
                 variant="primary"

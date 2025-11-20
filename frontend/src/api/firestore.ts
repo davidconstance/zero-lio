@@ -1,247 +1,153 @@
+// firestore.ts
 import type { Place, Reservation, Profile, Comment } from "../types";
-import { getUserId } from "./authentication";
+import { getAuth } from "firebase/auth";
 
+/**
+ * Obtiene el token de Firebase para autenticación con backend.
+ */
+async function getUserToken(): Promise<string> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) throw new Error("Usuario no autenticado.");
+  return await user.getIdToken();
+}
+
+/**
+ * Manejo general de respuestas de fetch
+ */
 async function handleResponse(response: Response) {
   if (!response.ok) {
-    const errorBody = await response.text();
-    let alertMessage = `HTTP error! Status: ${response.status}`;
+    const text = await response.text();
+    let msg = `HTTP ${response.status}`;
     try {
-      const errorJson = JSON.parse(errorBody);
-      alertMessage = errorJson.message || alertMessage || errorJson.error;
-    } catch (error: unknown) {
-      console.log(error);
-      alertMessage = errorBody || alertMessage;
-    }
-    throw new Error(`Failed to fetch: ${response.status} - ${alertMessage}`);
+      const json = JSON.parse(text);
+      msg = json.message || json.error || msg;
+    } catch {}
+    throw new Error(msg);
   }
-  return response;
+  return response.json();
 }
 
-export async function saveReservations(
-  newReservations: Reservation[],
-  oldReservations: Reservation[]
-) {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot save reservation.");
-  }
-
-  const reservationsToUpdate = newReservations;
-
-  const getDocId = (reservation: Reservation): string | null => {
-    return `reservation-${reservation.datetime.getTime()}`;
-  };
-
-  // compute newIds
-  const newIds = new Set(
-    newReservations.map(getDocId).filter((id): id is string => !!id)
-  );
-
-  // filter out the old ids
-  const idsToDelete: string[] = oldReservations
-    .map(getDocId)
-    .filter((id): id is string => !!id)
-    .filter((oldId) => !newIds.has(oldId));
-
-  // call to backend
-  await handleResponse(
-    await fetch(
-      "https://zero-lio-backend.onrender.com/api/reservations/store",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${userID}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ reservationsToUpdate, idsToDelete }),
-      }
-    )
-  );
-}
-
-export async function fetchSavedReservations(): Promise<Reservation[]> {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot fetch saved reservations.");
-  }
-
-  // call to backend
-  const response = await handleResponse(
-    await fetch(
-      "https://zero-lio-backend.onrender.com/api/reservations/saved",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userID}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
-  );
-
-  const reservations: Reservation[] = await response.json();
-  return reservations;
-}
+/* ====================== CANCHAS ====================== */
 
 export async function saveCanchas(newCanchas: Place[], oldCanchas: Place[]) {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot save cancha.");
-  }
+  const token = await getUserToken();
 
-  const canchasToUpdate = newCanchas;
+  const newIds = new Set(newCanchas.map(c => `cancha-${c.id}`));
+  const idsToDelete = oldCanchas
+    .map(c => `cancha-${c.id}`)
+    .filter(id => !newIds.has(id));
 
-  const getDocId = (cancha: Place): string | null => {
-    return `cancha-${cancha.id}`;
-  };
-
-  // compute newIds
-  const newIds = new Set(
-    newCanchas.map(getDocId).filter((id): id is string => !!id)
-  );
-
-  // filter out the old ids
-  const idsToDelete: string[] = oldCanchas
-    .map(getDocId)
-    .filter((id): id is string => !!id)
-    .filter((oldId) => !newIds.has(oldId));
-
-  // call to backend
-  await handleResponse(
-    await fetch("https://zero-lio-backend.onrender.com/api/canchas/store", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${userID}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ canchasToUpdate, idsToDelete }),
-    })
-  );
+  await fetch("https://zero-lio-backend.onrender.com/api/canchas/store", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ canchasToUpdate: newCanchas, idsToDelete }),
+  }).then(handleResponse);
 }
 
 export async function fetchSavedCanchas(): Promise<Place[]> {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot fetch saved canchas.");
-  }
-
-  // call to backend
-  const response = await handleResponse(
-    await fetch("https://zero-lio-backend.onrender.com/api/canchas/saved", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userID}`,
-        "Content-Type": "application/json",
-      },
-    })
-  );
-
-  const canchas: Place[] = await response.json();
-  return canchas;
+  const token = await getUserToken();
+  return fetch("https://zero-lio-backend.onrender.com/api/canchas/saved", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then(handleResponse);
 }
 
-export async function fetchUserInfo(): Promise<Profile> {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot fetch saved canchas.");
-  }
+/* ====================== RESERVAS ====================== */
 
-  // call to backend
-  const response = await handleResponse(
-    await fetch("https://zero-lio-backend.onrender.com/user/settings/info", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userID}`,
-        "Content-Type": "application/json",
-      },
-    })
-  );
-  const settings: Profile = await response.json();
-  return settings;
+export async function saveReservations(newReservations: Reservation[], oldReservations: Reservation[]) {
+  const token = await getUserToken();
+
+  const newIds = new Set(newReservations.map(r => `reservation-${r.datetime.getTime()}`));
+  const idsToDelete = oldReservations
+    .map(r => `reservation-${r.datetime.getTime()}`)
+    .filter(id => !newIds.has(id));
+
+  await fetch("https://zero-lio-backend.onrender.com/api/reservations/store", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ reservationsToUpdate: newReservations, idsToDelete }),
+  }).then(handleResponse);
+}
+
+export async function fetchSavedReservations(): Promise<Reservation[]> {
+  const token = await getUserToken();
+  return fetch("https://zero-lio-backend.onrender.com/api/reservations/saved", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then(handleResponse);
+}
+
+/* ====================== USUARIO ====================== */
+
+export async function fetchUserInfo(): Promise<Profile> {
+  const token = await getUserToken();
+  return fetch("https://zero-lio-backend.onrender.com/user/settings/info", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then(handleResponse);
 }
 
 export async function saveUserInfo(profile: Profile) {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot save cancha.");
-  }
-
-  // call to backend
-  await handleResponse(
-    await fetch("https://zero-lio-backend.onrender.com/user/settings/edit", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${userID}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ profile }),
-    })
-  );
+  const token = await getUserToken();
+  await fetch("https://zero-lio-backend.onrender.com/user/settings/edit", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ profile }),
+  }).then(handleResponse);
 }
 
-export async function postComment(comment: Comment) {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot save cancha.");
-  }
+/* ====================== COMENTARIOS ====================== */
 
-  // call to backend
-  await handleResponse(
-    await fetch("https://zero-lio-backend.onrender.com/api/comments/post", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${userID}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ comment }),
-    })
-  );
+export async function postComment(comment: Comment) {
+  const token = await getUserToken();
+  await fetch("https://zero-lio-backend.onrender.com/api/comments/post", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ comment }),
+  }).then(handleResponse);
 }
 
 export async function postReply(reply: Comment) {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot save cancha.");
-  }
-
-  // call to backend
-  await handleResponse(
-    await fetch("https://zero-lio-backend.onrender.com/api/comments/reply", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${userID}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ reply }),
-    })
-  );
+  const token = await getUserToken();
+  await fetch("https://zero-lio-backend.onrender.com/api/comments/reply", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ reply }),
+  }).then(handleResponse);
 }
 
 export async function fetchAllComments(): Promise<Comment[]> {
-  // get userID for api call authorization
-  const userID = await getUserId();
-  if (!userID) {
-    throw new Error("User not signed in: Cannot save cancha.");
-  }
-  // call to backend
-  const response = await handleResponse(
-    await fetch("https://zero-lio-backend.onrender.com/api/comments/all", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userID}`,
-        "Content-Type": "application/json",
-      },
-    })
-  );
-
-  const comments: Comment[] = await response.json();
-  return comments;
+  const token = await getUserToken();
+  return fetch("https://zero-lio-backend.onrender.com/api/comments/all", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then(handleResponse);
 }

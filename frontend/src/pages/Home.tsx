@@ -11,7 +11,7 @@ import { IoIosHeartEmpty } from "react-icons/io";
 import { IoIosHeart } from "react-icons/io";
 import { IoIosMenu } from "react-icons/io";
 import { IoIosList } from "react-icons/io";
-import { IoPin } from "react-icons/io";
+import { IoPin } from "react-icons/io5";
 import Menu from "../components/Menu";
 import type { Place } from "../types";
 import { reverseGeocode } from "../api/geocode";

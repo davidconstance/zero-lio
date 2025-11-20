@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./ImprovedCancha.module.css";
 import type { Place } from "../types";
-import { IoIosPin, IoHeart, IoHeartOutline } from "react-icons/io5";
+import { IoPin, IoHeart, IoHeartOutline } from "react-icons/io5";
 
 interface CanchaProps {
   place: Place;
@@ -49,7 +49,7 @@ export default function ImprovedCancha({
         </div>
 
         <p className={styles.address}>
-          <IoIosPin aria-hidden="true" />
+          <IoPin aria-hidden="true" />
           {place.formattedAddress}
         </p>
 
